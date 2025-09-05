@@ -1,3 +1,16 @@
 {
-    "explorer.sortOrder": "modified"
+    "explorer.sortOrder": "modified",
+    "sqltools.connections": [
+        {
+            "ssh": "Disabled",
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5433,
+            "driver": "PostgreSQL",
+            "name": "starter",
+            "database": "postgres",
+            "username": "postgres",
+            "password": "postgres"
+        }
+    ]
 }
