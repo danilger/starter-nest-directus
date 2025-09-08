@@ -89,16 +89,24 @@ npm run migration:revert
 
 Directus подключается к базе данных Server и создает свои таблицы для управления контентом:
 
-### Запуск Directus
+### Полный запуск проекта
 
 ```bash
-# Перейти в папку directus
-cd ../directus
-
-# Запуск Directus (подключается к базе Server)
+# 1. Запуск базы данных PostgreSQL
+cd server
 docker-compose up -d
 
-# Доступ к админке: http://localhost:8055
+# 2. Запуск NestJS сервера
+npm install
+npm run start:dev
+
+# 3. Запуск Directus (в новом терминале)
+cd ../directus
+docker-compose up -d
+
+# Доступ к сервисам:
+# - NestJS API: http://localhost:5000
+# - Directus админка: http://localhost:8055
 ```
 
 ### Рабочий процесс
@@ -106,7 +114,7 @@ docker-compose up -d
 1. **Разработка**: Работа в Directus админке
 2. **Сохранение**: Все изменения автоматически сохраняются в `./database/postgres/`
 3. **Git**: `git add database/` → `git commit` → `git push`
-4. **Продакшен**: `git clone` → `docker-compose up -d` → данные восстанавливаются
+4. **Продакшен**: `git clone` → запуск всех сервисов → данные восстанавливаются
 
 ## Compile and run the project
 
