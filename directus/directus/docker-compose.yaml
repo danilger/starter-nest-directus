@@ -1,12 +1,13 @@
 name: directus-cms-template
 services:
   directus:
-    image: directus/directus:11.6.1
+    image: directus/directus:latest
     ports:
       - ${DIRECTUS_PORT}:8055
     volumes:
       - ./uploads:/directus/uploads
       - ./extensions:/directus/extensions
+      - ./migrations:/directus/migrations
 
     environment:
       SECRET: ${DIRECTUS_SECRET}
