@@ -23,13 +23,90 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository with PostgreSQL database and Directus CMS integration.
+
+## Architecture
+
+- **NestJS Server** - основной backend API
+- **PostgreSQL** - база данных в Docker контейнере
+- **Directus CMS** - админка для управления данными
+- **Volume Storage** - данные БД сохраняются в `./database/postgres/` и коммитятся в git
+
+## Database Management
+
+База данных PostgreSQL работает как Docker volume и сохраняется в папке `./database/postgres/`:
+
+- ✅ **Все данные сохраняются** в файловой системе проекта
+- ✅ **Можно коммитить в git** (кроме больших файлов)
+- ✅ **Простое копирование** между средами
+- ✅ **Автоматическое сохранение** всех изменений
+
+### Структура данных
+
+```
+server/
+├── docker-compose.yml    # Конфигурация PostgreSQL
+├── database/
+│   └── postgres/         # PostgreSQL данные (volume)
+│       ├── base/         # Основные данные БД
+│       ├── pg_wal/      # WAL файлы
+│       └── ...          # Другие файлы PostgreSQL
+└── ...
+```
 
 ## Project setup
 
 ```bash
 $ npm install
 ```
+
+## Database Setup
+
+### 1. Запуск базы данных
+
+```bash
+# Запуск PostgreSQL в Docker
+docker-compose up -d
+
+# Проверка статуса
+docker-compose ps
+```
+
+### 2. Миграции TypeORM
+
+```bash
+# Запуск миграций
+npm run migration:run
+
+# Создание новой миграции
+npm run migration:generate -- src/database/migrations/YourMigrationName
+
+# Откат миграций
+npm run migration:revert
+```
+
+## Directus CMS Integration
+
+Directus подключается к базе данных Server и создает свои таблицы для управления контентом:
+
+### Запуск Directus
+
+```bash
+# Перейти в папку directus
+cd ../directus
+
+# Запуск Directus (подключается к базе Server)
+docker-compose up -d
+
+# Доступ к админке: http://localhost:8055
+```
+
+### Рабочий процесс
+
+1. **Разработка**: Работа в Directus админке
+2. **Сохранение**: Все изменения автоматически сохраняются в `./database/postgres/`
+3. **Git**: `git add database/` → `git commit` → `git push`
+4. **Продакшен**: `git clone` → `docker-compose up -d` → данные восстанавливаются
 
 ## Compile and run the project
 
