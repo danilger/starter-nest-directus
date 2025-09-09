@@ -17,7 +17,7 @@ export default new DataSource({
   dropSchema: false, // Запрет на удаление схемы при запуске
   logging: true, // Включение логгирования запросов
   logger: 'advanced-console', // Тип логгера (если включено)
-  entities: [join(__dirname, '..', '**', '*.entity.{ts,js}')], // Пути к сущностям
+  entities: [join(__dirname, '..', 'src', '**', '*.entity.{ts,js}')], // Пути к сущностям
   migrations: [join(__dirname, '..', 'database', 'migrations', '**', '*.{ts,js}')], // Пути к миграциям
   subscribers: [join(__dirname, '..', 'subscriber', '**', '*.{ts,js}')], // Пути к подписчикам событий
   migrationsTableName: 'migrations', // Название таблицы для хранения миграций
