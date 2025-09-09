@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
+    "gapiapp": "openapi-typescript http://localhost:5000/api/openapi.json  -o ./src/shared/api/api.ts",
     "gapidirectus": "openapi-typescript http://localhost:8055/server/specs/oas -o ./src/shared/api/api_directus.ts"
   },
   "dependencies": {

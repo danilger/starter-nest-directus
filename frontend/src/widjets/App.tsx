@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import { directusClient } from "../shared/lib/fetchClient";
+import { client, directusClient } from "../shared/lib/fetchClient";
 
 function App() {
   const form = useForm<{ email: string; password: string }>();
@@ -12,7 +12,9 @@ function App() {
         body: { ...data, mode: "cookie" },
       })
       .then((res) => {
-        console.log(res);
+        document.cookie = `access_token=${
+          res.data?.data?.access_token || ""
+        }; path=/`;
       });
   };
 
@@ -24,6 +26,13 @@ function App() {
       .then((res) => {
         console.log(res);
       });
+  };
+  const testApi = () => {
+    client.GET("/");
+    setTimeout(() => {
+      client.GET("/");
+      client.GET('/page');
+    }, 5);
   };
   return (
     <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -43,6 +52,9 @@ function App() {
         <button type="submit">Login</button>
         <button type="button" onClick={refreshHandler}>
           Refresh
+        </button>
+        <button type="button" onClick={testApi}>
+          test api
         </button>
       </div>
     </form>
