@@ -56,6 +56,7 @@ function App() {
         <button type="button" onClick={testApi}>
           test api
         </button>
+        <a href={import.meta.env.VITE_DIRECTUS_API_URL} target="_blank">admin panel</a>
       </div>
     </form>
   );

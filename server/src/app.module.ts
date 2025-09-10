@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PageModule } from './page/page.module';
+import { DirectusModule } from './directus/directus.module';
 
 @Module({
   imports: [
@@ -22,7 +23,7 @@ import { PageModule } from './page/page.module';
       }),
       inject: [ConfigService],
     }),
-    PageModule,
+    PageModule,DirectusModule
   ],
   controllers: [AppController],
   providers: [AppService],
