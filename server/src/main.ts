@@ -22,13 +22,27 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
 
-  // Создаем GET эндпоинт для openapi.json
+  const directusDocument = await fetch(
+    'http://localhost:8055/server/specs/oas',
+  ).then(res => res.json());
+
+
+  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('directus', app, directusDocument);
+
+  // Создаем GET маршрут для openapi.json основного приложения
   app.getHttpAdapter().get('/api/openapi.json', (req, res) => {
     res.header('Content-Type', 'application/json');
     res.send(document);
   });
+
+  // Создаем GET маршрут для openapi.json Directus
+  app.getHttpAdapter().get('/api/directus/openapi.json', (req, res) => {
+    res.header('Content-Type', 'application/json');
+    res.send(directusDocument);
+  });
+
 
   // Start server
   const res = await app.listen(process.env.PORT ?? 5000);
