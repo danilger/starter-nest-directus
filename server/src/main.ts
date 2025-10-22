@@ -25,11 +25,22 @@ async function bootstrap() {
 
   const directusDocument = await fetch(
     'http://localhost:8055/server/specs/oas',
-  ).then(res => res.json());
+  ).then((res) => res.json());
 
+  // Настройки для Swagger UI с credentials: 'include'
+  const swaggerOptions = {
+    swaggerOptions: {
+      requestInterceptor: (req) => {
+        // Добавляем credentials: 'include' ко всем запросам
+        req.credentials = 'include';
+        return req;
+      },
+      withCredentials: true,
+    },
+  };
 
-  SwaggerModule.setup('api', app, document);
-  SwaggerModule.setup('directus', app, directusDocument);
+  SwaggerModule.setup('api', app, document, swaggerOptions);
+  SwaggerModule.setup('directus', app, directusDocument, swaggerOptions);
 
   // Создаем GET маршрут для openapi.json основного приложения
   app.getHttpAdapter().get('/api/openapi.json', (req, res) => {
@@ -42,7 +53,6 @@ async function bootstrap() {
     res.header('Content-Type', 'application/json');
     res.send(directusDocument);
   });
-
 
   // Start server
   const res = await app.listen(process.env.PORT ?? 5000);

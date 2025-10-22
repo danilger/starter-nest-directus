@@ -12,5 +12,9 @@
             "username": "postgres",
             "password": "postgres"
         }
+    ],
+    "cSpell.words": [
+        "directus",
+        "бэкапов"
     ]
 }

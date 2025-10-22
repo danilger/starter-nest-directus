@@ -5,9 +5,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PageModule } from './page/page.module';
 import { DirectusModule } from './directus/directus.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { BackupService } from './backup/backup.service';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot(),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -26,6 +29,6 @@ import { DirectusModule } from './directus/directus.module';
     PageModule,DirectusModule
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, BackupService],
 })
 export class AppModule {}

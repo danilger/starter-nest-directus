@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { PageService } from './page.service';
 import { CreatePageDto } from './dto/create-page.dto';
@@ -13,7 +14,11 @@ import { UpdatePageDto } from './dto/update-page.dto';
 import { Page } from './entities/page.entity';
 import { DeleteResult } from 'typeorm';
 import { ApiResponse } from '@nestjs/swagger';
+import { UserAuthGuard } from 'src/auth/guards/user_auth.guard';
+import { PermissionsGuard } from 'src/auth/guards/permissions.guard';
+import { Permissions } from 'src/auth/decorators/permissions.decorator';
 
+@UseGuards(UserAuthGuard, PermissionsGuard)
 @Controller('page')
 export class PageController {
   constructor(private readonly pageService: PageService) {}
@@ -28,6 +33,7 @@ export class PageController {
     description: 'Созданная страница',
     type: Page,
   })
+  @Permissions(['create pages'], 'and')
   @Post()
   create(@Body() createPageDto: CreatePageDto): Promise<Page | null> {
     return this.pageService.create(createPageDto);

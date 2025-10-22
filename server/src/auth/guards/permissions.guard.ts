@@ -58,7 +58,8 @@ export class PermissionsGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const user = request.user;
 
-    if (!user?.id || !user?.role) {
+
+    if (!user?.id ) {
       return false;
     }
 
@@ -72,6 +73,7 @@ export class PermissionsGuard implements CanActivate {
 
     const userId = user.id;
     const userRoleId = user.role;
+
 
     const access = await this.directusService.findAccess(
       [{ user: userId }, { role: userRoleId }],
@@ -89,12 +91,15 @@ export class PermissionsGuard implements CanActivate {
       ...permission,
     }));
 
+    
     const permissions = await this.directusService.findPermissions(where, {
       cache: {
         id: 'directus_permissions',
         milliseconds: 30000,
       },
     });
+
+    console.log(permissions)
 
     if (permissionsRawArray.operator === 'or') {
       return permissions.length > 0;
