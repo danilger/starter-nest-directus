@@ -89,7 +89,7 @@ starter/
 - После авторизации в Directus получите `access_token` из JSON ответа и установите его в cookies с именем `access_token`
 - Guard аутентификации ищет токен именно в cookies
 
-⚠️ **Важно**: Directus автоматически устанавливает только `directus_refresh_token` в httpOnly cookies. `access_token` приходит в JSON ответе и должен быть установлен фронтендом в cookies вручную.
+⚠️ **Важно**: Directus автоматически устанавливает только `refresh_token` в httpOnly cookies. `access_token` приходит в JSON ответе и должен быть установлен фронтендом в cookies вручную.
 
 ## Авторизация и Аутентификация
 
