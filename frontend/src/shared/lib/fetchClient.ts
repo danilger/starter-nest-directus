@@ -82,7 +82,7 @@ const refreshToken = async (): Promise<void> => {
 };
 
 // Функция для обработки очереди запросов
-const processQueue = (error: any, token: string | null = null) => {
+const processQueue = (error: any, _: string | null = null) => {
   requestQueue.forEach(({ resolve, reject, request }) => {
     if (error) {
       reject(error);
