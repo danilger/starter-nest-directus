@@ -29,18 +29,27 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
+  const directusHost =
+    process.env.NODE_ENV === 'development'
+      ? 'http://localhost:8055'
+      : 'http://directus:8055';
 
   // Попытка получить Directus OpenAPI спецификацию (опционально)
   let directusDocument = null;
   try {
     directusDocument = await fetch(
-      'http://directus:8055/server/specs/oas',
-      { signal: AbortSignal.timeout(5000) } // таймаут 5 секунд
+      directusHost + '/server/specs/oas',
+      { signal: AbortSignal.timeout(5000) }, // таймаут 5 секунд
     ).then((res) => res.json());
     console.log('Directus OpenAPI спецификация загружена');
   } catch (error) {
-    console.warn('Не удалось загрузить Directus OpenAPI спецификацию:', error.message);
-    console.warn('Swagger для Directus будет недоступен. Directus может быть еще не готов.');
+    console.warn(
+      'Не удалось загрузить Directus OpenAPI спецификацию:',
+      error.message,
+    );
+    console.warn(
+      'Swagger для Directus будет недоступен. Directus может быть еще не готов.',
+    );
   }
 
   // Настройки для Swagger UI с credentials: 'include'
@@ -56,7 +65,7 @@ async function bootstrap() {
   };
 
   SwaggerModule.setup('docs', app, document, swaggerOptions);
-  
+
   // Настройка Swagger для Directus только если спецификация загружена
   if (directusDocument) {
     SwaggerModule.setup('directus', app, directusDocument, swaggerOptions);

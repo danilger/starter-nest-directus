@@ -20,7 +20,10 @@ import { BackupService } from './backup/backup.service';
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
-        host: configService.get('DB_HOST'),
+        host:
+          configService.get('NODE_ENV') === 'development'  // dev режим переключается на localhost в .env
+            ? configService.get('DB_HOST_DEV')
+            : configService.get('DB_HOST'),
         port: +configService.get('DB_PORT'),
         username: configService.get('DB_USER'),
         password: configService.get('DB_PASSWORD'),
@@ -30,7 +33,8 @@ import { BackupService } from './backup/backup.service';
       }),
       inject: [ConfigService],
     }),
-    PageModule,DirectusModule
+    PageModule,
+    DirectusModule,
   ],
   controllers: [AppController],
   providers: [AppService, BackupService],
