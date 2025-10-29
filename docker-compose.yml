@@ -30,6 +30,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      directus:
+        condition: service_healthy 
     networks:
       - app-net
 
@@ -54,6 +56,16 @@ services:
       PORT: ${DIRECTUS_PORT}
       DB_CLIENT: pg
       DB_DATABASE: ${DB_NAME}
+      DB_HOST: ${DB_HOST}      
+      DB_PORT: ${DB_PORT}          
+      DB_USER: ${DB_USER}    
+      DB_PASSWORD: ${DB_PASSWORD}  
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 0.0.0.0 8055 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s  # увеличьте для медленного старта
     networks:
       - app-net
 
