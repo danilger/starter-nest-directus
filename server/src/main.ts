@@ -4,6 +4,8 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
+  console.log(process.env);
+
   const app = await NestFactory.create(AppModule);
   // Настройка cookie-parser
   app.use(cookieParser());
@@ -30,9 +32,9 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, config);
   const directusHost =
-    process.env.NODE_ENV === 'development'
-      ? 'http://localhost:8055'
-      : 'http://directus:8055';
+    process.env.NODE_ENV === 'production'
+      ? 'http://directus:8055'
+      : 'http://localhost:8055';
 
   // Попытка получить Directus OpenAPI спецификацию (опционально)
   let directusDocument = null;

@@ -48,6 +48,7 @@ export class PageController {
     description: 'Массив всех страниц',
     type: [Page],
   })
+  @Permissions(['read pages'], 'and')
   @Get()
   findAll(): Promise<Page[] | null> {
     return this.pageService.findAll();
@@ -64,6 +65,7 @@ export class PageController {
     type: Page,
   })
   @Get(':id')
+  @Permissions(['read pages'], 'and')
   findOne(@Param('id') id: string): Promise<Page | null> {
     return this.pageService.findOne(+id);
   }
@@ -79,6 +81,7 @@ export class PageController {
     type: Page,
   })
   @Patch(':id')
+  @Permissions(['update pages'], 'and')
   update(
     @Param('id') id: string,
     @Body() updatePageDto: UpdatePageDto,
@@ -109,6 +112,7 @@ export class PageController {
       },
     },
   })
+  @Permissions(['delete pages'], 'and')
   @Delete(':id')
   remove(@Param('id') id: string): Promise<DeleteResult> {
     return this.pageService.remove(+id);

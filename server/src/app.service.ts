@@ -4,11 +4,11 @@ import { DirectusService } from './directus/directus.service';
 @Injectable()
 export class AppService {
   constructor(private readonly directusService: DirectusService) {}
-   getHello() {
-    this.directusService.getRoles().then(roles => {
+  getHello() {
+    this.directusService.getRoles().then((roles) => {
       // console.log(roles);
     });
-   
-    return 'Hello World!';
+
+    return { message: 'Hello World!' };
   }
 }

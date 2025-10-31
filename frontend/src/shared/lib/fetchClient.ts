@@ -2,53 +2,56 @@ import createClient from "openapi-fetch/dist/index.cjs";
 import type { paths } from "../api/api_directus";
 import type { paths as appPaths } from "../api/api";
 
+console.table(import.meta.env);
+
 export const directusClient = createClient<paths>({
-  baseUrl: import.meta.env.VITE_DIRECTUS_API_URL,
+  baseUrl: import.meta.env.DEV
+    ? import.meta.env.VITE_DIRECTUS_URL_DEV
+    : import.meta.env.VITE_DIRECTUS_URL,
   credentials: "include",
 });
 
-
 /**
  * ИНТЕРСЕПТОР ДЛЯ АВТОМАТИЧЕСКОГО ОБНОВЛЕНИЯ ТОКЕНОВ
- * 
+ *
  * Этот интерсептор решает проблему истечения access_token'ов в приложении.
- * 
+ *
  * КАК ЭТО РАБОТАЕТ:
- * 
+ *
  * 1. ОСНОВНАЯ ПРОБЛЕМА:
  *    - Access токены имеют короткий срок жизни (обычно 15-30 минут)
  *    - Refresh токены живут дольше (недели/месяцы)
  *    - Когда access токен истекает, API возвращает 401 ошибку
  *    - Без интерсептора пользователю пришлось бы перелогиниваться
- * 
+ *
  * 2. МЕХАНИЗМ РАБОТЫ:
- *    - При каждом HTTP запросе (GET, POST, PUT, DELETE, PATCH) 
+ *    - При каждом HTTP запросе (GET, POST, PUT, DELETE, PATCH)
  *      интерсептор проверяет ответ на наличие ошибок
  *    - Если получена 401 ошибка (Unauthorized), это означает истечение access токена
  *    - Интерсептор автоматически вызывает refresh endpoint для получения нового токена
  *    - После успешного обновления токена, оригинальный запрос повторяется
- * 
+ *
  * 3. ОЧЕРЕДЬ ЗАПРОСОВ:
  *    - Если во время обновления токена приходят новые запросы, они не теряются
  *    - Все новые запросы помещаются в очередь (requestQueue)
  *    - После успешного обновления токена все запросы из очереди выполняются
  *    - Это предотвращает race conditions и потерю данных
- * 
+ *
  * 4. СОСТОЯНИЯ СИСТЕМЫ:
  *    - isRefreshing: флаг, показывающий идет ли сейчас обновление токена
  *    - refreshPromise: промис обновления токена для избежания дублирования запросов
  *    - requestQueue: массив отложенных запросов
- * 
+ *
  * 5. ОБРАБОТКА ОШИБОК:
  *    - Если обновление токена не удалось, все запросы в очереди отклоняются
  *    - Пользователь будет перенаправлен на страницу логина
  *    - Ошибки логируются в консоль для отладки
- * 
+ *
  * 6. БЕЗОПАСНОСТЬ:
  *    - Токены обновляются через cookie-based аутентификацию
  *    - Refresh токен автоматически отправляется сервером в httpOnly cookie
  *    - Новый access токен сохраняется в cookie для последующих запросов
- * 
+ *
  * ПРЕИМУЩЕСТВА:
  * - Пользователь не замечает истечения токенов
  * - Нет потери данных при одновременных запросах
@@ -104,26 +107,24 @@ const queueRequest = (request: () => Promise<any>): Promise<any> => {
 const executeRequest = async (request: () => Promise<any>): Promise<any> => {
   const response = await request();
 
-  console.log("response", response);
-  
   // Проверяем наличие ошибки в ответе
   if (response.error) {
     // Проверяем, является ли ошибка связанной с токеном (401)
     if (response.error.statusCode === 401 && !isRefreshing) {
       isRefreshing = true;
       refreshPromise = refreshToken();
-      
+
       try {
         await refreshPromise;
         isRefreshing = false;
         refreshPromise = null;
-        
+
         // Повторяем запрос после успешного обновления токена
         const retryResponse = await request();
-        
+
         // Обрабатываем очередь при успешном обновлении
         processQueue(null);
-        
+
         return retryResponse;
       } catch (refreshError) {
         isRefreshing = false;
@@ -136,13 +137,12 @@ const executeRequest = async (request: () => Promise<any>): Promise<any> => {
       return await queueRequest(request);
     }
   }
-  
+
   return response;
 };
 
 // Создаем обертки для методов клиента
 const createInterceptedClient = (originalClient: any) => {
-  console.log("createInterceptedClient");
   return {
     ...originalClient,
     GET: (path: any, options?: any) =>
@@ -161,7 +161,10 @@ const createInterceptedClient = (originalClient: any) => {
 export const client: createClient.Client<appPaths, `${string}/${string}`> =
   createInterceptedClient(
     createClient<appPaths>({
-      baseUrl: import.meta.env.VITE_API_URL,
+      baseUrl:
+        import.meta.env.DEV
+          ? import.meta.env.VITE_API_URL_DEV
+          : import.meta.env.VITE_API_URL,
       credentials: "include",
     })
   );

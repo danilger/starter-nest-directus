@@ -58,7 +58,6 @@ export class PermissionsGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const user = request.user;
 
-
     if (!user?.id ) {
       return false;
     }
@@ -67,6 +66,10 @@ export class PermissionsGuard implements CanActivate {
       permissions: string[];
       operator: 'and' | 'or';
     }>(PERMISSIONS_KEY, [context.getHandler(), context.getClass()]);
+
+    // если ручка не закрыта то пропускаем в контроллер
+    if(!permissionsRawArray?.permissions) return true 
+    
     const requiredPermissions = permissionsRawArray.permissions
       .map((item) => item.split(' '))
       .map(([action, collection]) => ({ action, collection }));
@@ -99,7 +102,6 @@ export class PermissionsGuard implements CanActivate {
       },
     });
 
-    console.log(permissions)
 
     if (permissionsRawArray.operator === 'or') {
       return permissions.length > 0;

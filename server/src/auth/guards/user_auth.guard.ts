@@ -19,7 +19,7 @@ export class UserAuthGuard implements CanActivate {
     }
 
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET_SAME_AS_IN_DIRECTUS);
+      const decoded = jwt.verify(token, process.env.DIRECTUS_SECRET);
       request.user = decoded;
       return true;
     } catch (error) {

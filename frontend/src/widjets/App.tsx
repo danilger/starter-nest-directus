@@ -4,8 +4,6 @@ import { client, directusClient } from "../shared/lib/fetchClient";
 function App() {
   const form = useForm<{ email: string; password: string }>();
   const onSubmit = (data: { email: string; password: string }) => {
-    console.log(data);
-    console.log(import.meta.env.VITE_DIRECTUS_API_URL);
 
     directusClient
       .POST("/auth/login", {
@@ -23,15 +21,13 @@ function App() {
       .POST("/auth/refresh", {
         body: { mode: "cookie" },
       })
-      .then((res) => {
-        console.log(res);
+      .then(() => {
       });
   };
   const testApi = () => {
     client.GET("/");
     setTimeout(() => {
-      client.GET("/");
-      client.GET('/page');
+      client.GET("/page");
     }, 5);
   };
   return (
@@ -53,10 +49,20 @@ function App() {
         <button type="button" onClick={refreshHandler}>
           Refresh
         </button>
+        <button
+          type="button"
+          onClick={() =>
+            document.cookie = "access_token=expired; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/"
+          }
+        >
+          Expire access token
+        </button>
         <button type="button" onClick={testApi}>
           test api
         </button>
-        <a href={import.meta.env.VITE_DIRECTUS_API_URL} target="_blank">admin panel</a>
+        <a href={import.meta.env.VITE_DIRECTUS_URL} target="_blank">
+          admin panel
+        </a>
       </div>
     </form>
   );

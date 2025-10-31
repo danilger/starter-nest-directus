@@ -1,0 +1,13 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Устанавливаем ВСЕ зависимости (включая dev)
+COPY package*.json ./
+RUN npm ci
+
+# Копируем конфиги миграций
+COPY tsconfig*.json ./
+COPY database ./database
+
+CMD ["npm", "run", "migration:run"]

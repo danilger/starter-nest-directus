@@ -2,13 +2,16 @@ import { DataSource } from 'typeorm';
 import * as dotenv from 'dotenv';
 import { join } from 'path';
 
-// Загрузка переменных окружения из .env-файла
-dotenv.config();
+// Загрузка переменных окружения из .env-файла в корне проекта
+dotenv.config({ path: join(__dirname, '..', '..', '.env') });
 
 /**Экспорт конфигурации подключения к PostgreSQL для миграций TypeORM */
 export default new DataSource({
   type: 'postgres', // Тип СУБД
-  host: process.env.DB_HOST,
+  host:
+    process.env.NODE_ENV === 'production'
+      ? process.env.DB_HOST
+      : process.env.DB_HOST_DEV, // DB_HOST для prod
   port: Number(process.env.DB_PORT),
   username: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
@@ -22,8 +25,8 @@ export default new DataSource({
     join(__dirname, '..', 'src', 'page', '**', '*.entity.{ts,js}'),
     // Добавьте другие папки с сущностями, но НЕ src/directus/**
   ],
-  migrations: [join(__dirname, '..', 'database', 'migrations', '**', '*.{ts,js}')], // Пути к миграциям
+  migrations: [join(__dirname, '..', 'database', 'migrations', '**', '*.ts')], // Пути к миграциям (только .ts файлы)
   subscribers: [join(__dirname, '..', 'subscriber', '**', '*.{ts,js}')], // Пути к подписчикам событий
   migrationsTableName: 'migrations', // Название таблицы для хранения миграций
-  migrationsRun: true
+  migrationsRun: true,
 });
