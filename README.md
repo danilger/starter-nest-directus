@@ -1,4 +1,4 @@
-# 🚀 Chemical Project
+# 🚀 Starter Project
 
 Fullstack приложение с NestJS backend, React frontend, Directus CMS и PostgreSQL.
 
