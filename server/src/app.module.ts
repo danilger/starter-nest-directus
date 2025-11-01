@@ -21,9 +21,9 @@ import { BackupService } from './backup/backup.service';
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
         host:
-          configService.get('NODE_ENV') === 'development'  // dev режим переключается на localhost в .env
-            ? configService.get('DB_HOST_DEV')
-            : configService.get('DB_HOST'),
+          configService.get('NODE_ENV') === 'production'  // dev режим переключается на localhost в .env
+            ? configService.get('DB_HOST')
+            : configService.get('DB_HOST_DEV'),
         port: +configService.get('DB_PORT'),
         username: configService.get('DB_USER'),
         password: configService.get('DB_PASSWORD'),

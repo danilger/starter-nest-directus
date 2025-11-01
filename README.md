@@ -45,9 +45,8 @@ docker-compose up -d --build
 ### 🛠️ Development (с hot reload)
 
 ```bash
-# 1. В .env установите
-DB_HOST=localhost
-NODE_ENV=development
+# 1. Создайте .env (DB_HOST автоматически переключится на DB_HOST_DEV при NODE_ENV=development)
+cp .env_example .env
 
 # 2. Запустите БД и Directus в Docker
 docker-compose -f docker-compose.dev.yml up -d
@@ -79,10 +78,10 @@ JWT_SECRET=минимум_32_символа_измените_в_продакше
 DIRECTUS_SECRET=минимум_32_символа_измените_в_продакшене
 
 # ============================================
-# База данных
+# База данных (автоматическое переключение через NODE_ENV)
 # ============================================
-DB_HOST=postgres          # Docker: postgres, Dev: localhost
-DB_HOST_DEV=localhost     # Для локальной разработки
+DB_HOST=postgres          # Для production (NODE_ENV=production)
+DB_HOST_DEV=localhost     # Для dev режима (NODE_ENV=development)
 DB_PORT=5432
 DB_NAME=app_db
 DB_USER=postgres
@@ -259,11 +258,11 @@ docker-compose up -d backend
 ### Ошибка подключения к БД
 
 **Dev режим:**
-- Проверьте: `DB_HOST=localhost` в `.env`
+- В `.env` должно быть: `DB_HOST_DEV=localhost` (переключение автоматическое через `NODE_ENV`)
 - Убедитесь PostgreSQL запущен: `docker-compose -f docker-compose.dev.yml ps`
 
 **Production:**
-- Проверьте: `DB_HOST=postgres` в `.env`
+- В `.env` должно быть: `DB_HOST=postgres` (используется при `NODE_ENV=production`)
 - Проверьте логи: `docker-compose logs postgres`
 
 ### Frontend показывает старую версию
@@ -278,12 +277,16 @@ docker-compose up -d
 
 ### Миграции не находят БД
 
-В `server/database/data-source.ts` должно быть:
+В `server/database/data-source.ts` автоматическое переключение уже настроено:
 ```typescript
 host: process.env.NODE_ENV === 'production' 
-  ? process.env.DB_HOST 
-  : process.env.DB_HOST_DEV
+  ? process.env.DB_HOST        // postgres в Docker
+  : process.env.DB_HOST_DEV    // localhost для dev
 ```
+
+Убедитесь, что в `.env` указаны обе переменные:
+- `DB_HOST=postgres`
+- `DB_HOST_DEV=localhost`
 
 ### Directus unhealthy
 
@@ -306,7 +309,7 @@ docker-compose exec directus nc -z 0.0.0.0 8055
 - [ ] `DIRECTUS_KEY` изменен
 - [ ] `DB_PASSWORD` изменен
 - [ ] `ADMIN_PASSWORD` изменен
-- [ ] `DB_HOST=postgres` в `.env`
+- [ ] `DB_HOST=postgres` и `DB_HOST_DEV=localhost` в `.env` (переключение автоматическое!)
 - [ ] `PUBLIC_URL` указывает на ваш домен
 - [ ] `CORS_ORIGIN` включает ваш домен
 - [ ] `VITE_API_URL` и `VITE_DIRECTUS_URL` указывают на ваш домен
@@ -321,14 +324,16 @@ docker-compose exec directus nc -z 0.0.0.0 8055
 - ❌ НЕ создавайте `server/.env`, `frontend/.env`, `directus/.env`
 - ❌ НЕ коммитьте `.env` в git
 - ❌ НЕ используйте разные `JWT_SECRET` и `DIRECTUS_SECRET`
-- ❌ НЕ забывайте менять `DB_HOST` между dev/prod
+- ❌ НЕ меняйте вручную `DB_HOST` в `.env` между режимами (это происходит автоматически!)
 
 ## ✅ Делайте
 
 - ✅ Один `.env` в корне проекта
 - ✅ `JWT_SECRET` = `DIRECTUS_SECRET`
-- ✅ `docker-compose.yml` для production
-- ✅ `docker-compose.dev.yml` для разработки
+- ✅ В `.env` держите: `DB_HOST=postgres` и `DB_HOST_DEV=localhost`
+- ✅ Переключение между dev/prod происходит автоматически через `NODE_ENV`
+- ✅ `docker-compose.yml` для production (устанавливает `NODE_ENV=production`)
+- ✅ `docker-compose.dev.yml` для разработки (локально `NODE_ENV=development`)
 - ✅ Копируйте `.env_example` → `.env` для новых окружений
 
 ---
@@ -352,7 +357,8 @@ docker-compose exec directus nc -z 0.0.0.0 8055
 | **PostgreSQL** | Docker, порт 5432 | Docker, внутренняя сеть |
 | **Directus** | Docker, порт 8055 | Docker, внутренняя сеть |
 | **Nginx** | Не используется | Docker, порты 80/443 |
-| **DB_HOST** | localhost | postgres |
+| **NODE_ENV** | development | production |
+| **DB_HOST** | DB_HOST_DEV (localhost) | DB_HOST (postgres) |
 | **Hot Reload** | ✅ Да | ❌ Нет |
 
 ---
